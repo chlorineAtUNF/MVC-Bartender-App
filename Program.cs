@@ -1,29 +1,28 @@
-var builder = WebApplication.CreateBuilder(args);
+using BartenderApp.Models;
+using Microsoft.EntityFrameworkCore;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("BartenderDb"));
+builder.Services.AddScoped<BartenderLogic>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.EnsureCreated();
+    if (!context.Cocktails.Any())
+    {
+        context.Cocktails.AddRange(
+            new Cocktail { Name = "Old Fashioned", Description = "Bourbon, Bitters, Sugar" },
+            new Cocktail { Name = "Margarita", Description = "Tequila, Lime, Cointreau" }
+        );
+        context.SaveChanges();
+    }
 }
 
-app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
-
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.Run();

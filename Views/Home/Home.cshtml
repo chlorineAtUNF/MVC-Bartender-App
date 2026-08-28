@@ -1,0 +1,21 @@
+@model IEnumerable<BartenderApp.Models.Cocktail>
+<h2 style="color: #00205B;">Cocktail Menu</h2>
+<div class="row mt-3">
+    @foreach(var drink in Model) {
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light shadow-sm">
+                <div class="card-body">
+                    <h5 style="color: #00205B;">@drink.Name</h5>
+                    <p class="text-muted">@drink.Description</p>
+                    <form asp-action="PlaceOrder" method="post">
+                        <input type="hidden" name="cocktailId" value="@drink.Id" />
+                        <div class="input-group">
+                            <input type="text" name="patronName" class="form-control" placeholder="Your Name" required />
+                            <button type="submit" class="btn text-white" style="background-color: #00205B;">Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
